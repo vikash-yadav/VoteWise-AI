@@ -92,12 +92,15 @@ export default function Dashboard({ user, voterData, onTabChange, lang }: Dashbo
   }
 
   return (
-    <div className="bento-container animate-fade-in">
+    <div className="bento-container animate-fade-in" role="main" aria-label="Voter Dashboard">
       {/* Voter Status Card */}
-      <div className="bento-item span-5">
-        <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '1px', marginBottom: '1rem' }}>{t.status}</p>
+      <section className="bento-item span-5" aria-labelledby="status-title">
+        <p id="status-title" style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '1px', marginBottom: '1rem' }}>{t.status}</p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-          <div style={{ width: 48, height: 48, borderRadius: '50%', background: voter.voterStatus === 'active' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
+          <div 
+            role="status" 
+            aria-label={voter.voterStatus === 'active' ? 'Verified' : 'Pending'}
+            style={{ width: 48, height: 48, borderRadius: '50%', background: voter.voterStatus === 'active' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
             {voter.voterStatus === 'active' ? '✅' : '⏳'}
           </div>
           <div>
@@ -108,76 +111,92 @@ export default function Dashboard({ user, voterData, onTabChange, lang }: Dashbo
           </div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t.epic}</span><span style={{ fontWeight: 600, fontFamily: 'monospace' }}>{voter.epicNumber}</span></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t.epic}</span><span style={{ fontWeight: 600, fontFamily: 'monospace' }} aria-label={`EPIC Number: ${voter.epicNumber}`}>{voter.epicNumber}</span></div>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ color: 'var(--text-secondary)' }}>{t.partSerial}</span><span style={{ fontWeight: 600 }}>{voter.partNumber} / {voter.serialNumber}</span></div>
         </div>
-      </div>
+      </section>
 
       {/* AI Mini Chat */}
-      <div className="bento-item span-7">
+      <section className="bento-item span-7" aria-labelledby="ai-assistant-title">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--success-color)', display: 'inline-block' }} />
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '1px' }}>{t.aiTitle}</span>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--success-color)', display: 'inline-block' }} aria-hidden="true" />
+            <span id="ai-assistant-title" style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '1px' }}>{t.aiTitle}</span>
           </div>
-          <span className="badge badge-active">{t.aiPowered}</span>
+          <span className="badge badge-active" aria-label="AI Model Information">{t.aiPowered}</span>
         </div>
         <p style={{ color: 'var(--text-primary)', lineHeight: 1.6, marginBottom: '1rem' }}>
           {t.aiMsg(voter.voterName?.split(' ')[0], voter.constituency)}
         </p>
-        <button className="button-primary" style={{ alignSelf: 'flex-start', marginTop: 'auto' }} onClick={() => onTabChange('assistant')}>{t.chatBtn}</button>
-      </div>
+        <button 
+          className="button-primary" 
+          aria-label="Open AI Civic Assistant"
+          style={{ alignSelf: 'flex-start', marginTop: 'auto' }} 
+          onClick={() => onTabChange('assistant')}>{t.chatBtn}</button>
+      </section>
 
       {/* Constituency Insights */}
-      <div className="bento-item span-5" style={{ background: 'linear-gradient(135deg, #1e293b, #0f172a)', color: 'white' }}>
-        <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '1px', marginBottom: '1rem' }}>{t.insights}</p>
+      <section className="bento-item span-5" style={{ background: 'linear-gradient(135deg, #1e293b, #0f172a)', color: 'white' }} aria-labelledby="insights-title">
+        <p id="insights-title" style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', letterSpacing: '1px', marginBottom: '1rem' }}>{t.insights}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {[[t.constituency, voter.constituency], [t.assembly, voter.assemblyConstituency], [t.votingDate, '1 June 2026'], [t.state, voter.state], [t.district, voter.district]].map(([k, v]) => (
             <div key={k} style={{ display: 'flex', justifyContent: 'space-between' }}><span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{k}</span><span style={{ fontWeight: 700, fontSize: '0.85rem' }}>{v}</span></div>
           ))}
         </div>
-      </div>
+      </section>
 
       {/* Countdown */}
-      <div className="bento-item span-3" style={{ background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))', color: 'white', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}>
-        <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px', marginBottom: '0.5rem', opacity: 0.8 }}>{t.countdownTitle}</p>
-        <p style={{ fontSize: '3.5rem', fontWeight: 800, fontFamily: 'Outfit', lineHeight: 1 }}>{daysRemaining}</p>
+      <section className="bento-item span-3" style={{ background: 'linear-gradient(135deg, var(--primary-color), var(--accent-color))', color: 'white', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }} aria-labelledby="countdown-title">
+        <p id="countdown-title" style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '1px', marginBottom: '0.5rem', opacity: 0.8 }}>{t.countdownTitle}</p>
+        <p style={{ fontSize: '3.5rem', fontWeight: 800, fontFamily: 'Outfit', lineHeight: 1 }} aria-label={`${daysRemaining} days remaining`}>{daysRemaining}</p>
         <p style={{ fontSize: '0.8rem', fontWeight: 600, opacity: 0.9, marginBottom: '1rem' }}>{t.daysLeft}</p>
-        <button onClick={() => onTabChange('checklist')} style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontFamily: 'Inter', fontSize: '0.85rem' }}>{t.openChecklist}</button>
-      </div>
+        <button 
+          onClick={() => onTabChange('checklist')} 
+          aria-label="View Election Readiness Checklist"
+          style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', padding: '10px 20px', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontFamily: 'Inter', fontSize: '0.85rem' }}>{t.openChecklist}</button>
+      </section>
 
       {/* Docs Mini */}
-      <div className="bento-item span-4">
-        <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '1px', marginBottom: '1rem' }}>{t.checklistTitle}</p>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span style={{ color: 'var(--success-color)' }}>✓</span><span style={{ fontWeight: 500 }}>EPIC Card ({voter.epicNumber?.slice(0, 6)}...)</span></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span style={{ color: 'var(--success-color)' }}>✓</span><span style={{ fontWeight: 500 }}>Photograph (Uploaded)</span></div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><span style={{ color: 'var(--warning-color)' }}>⚠</span><span style={{ fontWeight: 500, color: 'var(--text-secondary)' }}>Proof of Address Needed</span></div>
-        </div>
-      </div>
+      <section className="bento-item span-4" aria-labelledby="docs-title">
+        <p id="docs-title" style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '1px', marginBottom: '1rem' }}>{t.checklistTitle}</p>
+        <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', listStyle: 'none', padding: 0, margin: 0 }}>
+          <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} aria-label="EPIC Card Verified"><span style={{ color: 'var(--success-color)' }} aria-hidden="true">✓</span><span style={{ fontWeight: 500 }}>EPIC Card ({voter.epicNumber?.slice(0, 6)}...)</span></li>
+          <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} aria-label="Photograph Uploaded Verified"><span style={{ color: 'var(--success-color)' }} aria-hidden="true">✓</span><span style={{ fontWeight: 500 }}>Photograph (Uploaded)</span></li>
+          <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }} aria-label="Proof of Address Needed"><span style={{ color: 'var(--warning-color)' }} aria-hidden="true">⚠</span><span style={{ fontWeight: 500, color: 'var(--text-secondary)' }}>Proof of Address Needed</span></li>
+        </ul>
+      </section>
 
       {/* Polling Booth with Map */}
-      <div className="bento-item span-12">
+      <section className="bento-item span-12" aria-labelledby="booth-info-title">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: showMap ? '1rem' : 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{ fontSize: '1.5rem' }}>📍</span>
+            <span style={{ fontSize: '1.5rem' }} aria-hidden="true">📍</span>
             <div>
-              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '1px' }}>{t.boothTitle} — #{voter.pollingBooth?.number}</p>
+              <p id="booth-info-title" style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '1px' }}>{t.boothTitle} — #{voter.pollingBooth?.number}</p>
               <p style={{ fontWeight: 600, fontSize: '1rem', margin: 0 }}>{voter.pollingBooth?.name}</p>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>{voter.pollingBooth?.address}</p>
             </div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button onClick={() => setShowMap(!showMap)} style={{ background: 'var(--surface-border)', color: 'var(--text-primary)', border: 'none', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontFamily: 'Inter', fontSize: '0.85rem' }}>{showMap ? t.close : t.map}</button>
-            <a href={voter.maps?.navigationUrl} target="_blank" rel="noopener noreferrer" style={{ background: 'var(--primary-color)', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontFamily: 'Inter', fontSize: '0.85rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>{t.navigate}</a>
+            <button 
+              onClick={() => setShowMap(!showMap)} 
+              aria-expanded={showMap}
+              aria-controls="booth-map-container"
+              style={{ background: 'var(--surface-border)', color: 'var(--text-primary)', border: 'none', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontFamily: 'Inter', fontSize: '0.85rem' }}>{showMap ? t.close : t.map}</button>
+            <a 
+              href={voter.maps?.navigationUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              aria-label="Navigate to polling booth using Google Maps"
+              style={{ background: 'var(--primary-color)', color: 'white', border: 'none', padding: '10px 16px', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontFamily: 'Inter', fontSize: '0.85rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>{t.navigate}</a>
           </div>
         </div>
         {showMap && voter.maps && (
-          <div style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--surface-border)' }}>
-            <iframe src={voter.maps.embedUrl} width="100%" height="350" style={{ border: 0 }} allowFullScreen loading="lazy" title="Polling Booth Location" />
+          <div id="booth-map-container" style={{ borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--surface-border)' }}>
+            <iframe src={voter.maps.embedUrl} width="100%" height="350" style={{ border: 0 }} allowFullScreen loading="lazy" title="Polling Booth Location Map" />
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect } from 'react';
-import { API_URL } from '../lib/config';
+import { API_BASE_URL } from '../lib/config';
+import { ApiService } from '../services/api';
 
 interface Message {
   role: 'bot' | 'user';
@@ -64,27 +65,15 @@ export default function Assistant({ user, voterData, lang }: AssistantProps) {
         parts: [{ text: m.content }]
       }));
 
-      const res = await fetch(`${API_URL}/api/v1/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMsg,
-          userId: user?.uid || 'anonymous',
-          history: history.slice(0, -1),
-          userContext: {
-            name: voterData?.voterName || user?.displayName || 'Citizen',
-            state: voterData?.state || 'Unknown',
-            constituency: voterData?.constituency || 'Unknown',
-            assemblyConstituency: voterData?.assemblyConstituency || 'Unknown',
-            epicNumber: voterData?.epicNumber || 'Unknown',
-            boothName: voterData?.pollingBooth?.name || 'Unknown',
-            boothAddress: voterData?.pollingBooth?.address || 'Unknown',
-            language: lang,
-            step: 0
-          }
-        })
-      });
-      const data = await res.json();
+      const context = {
+        userId: user?.uid || 'anonymous',
+        name: voterData?.voterName || user?.displayName || 'Citizen',
+        state: voterData?.state || 'Unknown',
+        constituency: voterData?.constituency || 'Unknown',
+        language: lang
+      };
+
+      const data = await ApiService.sendMessage(userMsg, context, history.slice(0, -1));
       setMessages([...newMessages, { role: 'bot', content: data.success ? data.response : t.errorGeneral }]);
     } catch {
       setMessages([...newMessages, { role: 'bot', content: t.errorServer }]);
@@ -94,33 +83,33 @@ export default function Assistant({ user, voterData, lang }: AssistantProps) {
   };
 
   return (
-    <div className="chat-container animate-fade-in">
-      <div className="chat-header">
+    <div className="chat-container animate-fade-in" role="complementary" aria-label="AI Civic Assistant">
+      <header className="chat-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{ width: 40, height: 40, borderRadius: '12px', background: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>🏛️</div>
+          <div style={{ width: 40, height: 40, borderRadius: '12px', background: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }} aria-hidden="true">🏛️</div>
           <div>
             <h3 style={{ margin: 0, fontSize: '1rem' }}>{t.headerTitle}</h3>
             <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--success-color)', fontWeight: 600 }}>{t.headerSub}</p>
           </div>
         </div>
-        <span className="badge badge-active">{t.headerLive}</span>
-      </div>
+        <span className="badge badge-active" aria-label="Assistant Status">{t.headerLive}</span>
+      </header>
 
-      <div className="chat-messages">
+      <div className="chat-messages" role="log" aria-live="polite" aria-label="Chat history">
         {messages.map((msg, idx) => (
-          <div key={idx} className={`message-bubble ${msg.role === 'bot' ? 'message-bot' : 'message-user'}`}>
+          <article key={idx} className={`message-bubble ${msg.role === 'bot' ? 'message-bot' : 'message-user'}`} aria-label={`${msg.role === 'bot' ? 'Assistant' : 'You'}: ${msg.content}`}>
             <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
-          </div>
+          </article>
         ))}
         {isLoading && (
-          <div className="message-bubble message-bot">
+          <div className="message-bubble message-bot" aria-busy="true" aria-label="Assistant is thinking">
             <div className="loading-dots"><span /><span /><span /></div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <form className="chat-input-area" onSubmit={sendMessage}>
+      <form className="chat-input-area" onSubmit={sendMessage} aria-label="Send message to assistant">
         <input
           className="input-field"
           style={{ borderRadius: '24px' }}
@@ -128,8 +117,16 @@ export default function Assistant({ user, voterData, lang }: AssistantProps) {
           value={input}
           onChange={e => setInput(e.target.value)}
           disabled={isLoading}
+          aria-label="Your question"
+          autoComplete="off"
         />
-        <button type="submit" className="button-primary" style={{ borderRadius: '50%', width: 48, height: 48, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem' }} disabled={isLoading}>
+        <button 
+          type="submit" 
+          className="button-primary" 
+          style={{ borderRadius: '50%', width: 48, height: 48, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '1.2rem' }} 
+          disabled={isLoading || !input.trim()}
+          aria-label="Send"
+        >
           💬
         </button>
       </form>

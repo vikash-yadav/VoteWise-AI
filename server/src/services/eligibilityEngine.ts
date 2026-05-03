@@ -9,7 +9,7 @@ export class EligibilityEngine {
   public evaluateEligibility(age: number, isCitizen: boolean, isResident: boolean) {
     const reasons: string[] = [];
 
-    if (age < 18) reasons.push("Must be at least 18 years old on the qualifying date.");
+    if (typeof age !== 'number' || age < 18) reasons.push("Must be at least 18 years old on the qualifying date.");
     if (!isCitizen) reasons.push("Must be an Indian citizen.");
     if (!isResident) reasons.push("Must be an ordinary resident of the polling area.");
 

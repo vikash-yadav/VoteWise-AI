@@ -1,22 +1,31 @@
-// Mock representation of a RAG pipeline utilizing Google Vertex AI Search
+import { searchKnowledgeBase, generateWithLLM } from '../utils/aiProviders';
+
+/**
+ * Representation of a RAG pipeline utilizing Vector Search and LLMs.
+ */
 export class RAGPipeline {
   /**
    * Generates a grounded response based on civic knowledge base.
+   * @param {string} query User's query
+   * @param {any} userContext Contextual information about the user
    */
   public async generateGroundedResponse(query: string, userContext: any): Promise<string> {
-    // In production, this would:
-    // 1. Convert query to embeddings (Vertex AI Text Embeddings)
-    // 2. Search Vector DB or Vertex AI Search for relevant Election Commission guidelines
-    // 3. Inject context and user's current step into LLM prompt
-    // 4. Return generated response grounded in facts
-    
-    console.log(`[RAG] Searching knowledge base for: ${query}`);
-    
-    // Simplified mock response
-    if (query.toLowerCase().includes('register')) {
-      return "To register, you need to fill out Form 6. You can do this online through the Voter Service Portal (voters.eci.gov.in) or offline by submitting it to your Electoral Registration Officer.";
+    if (!query || query.trim() === '') {
+      throw new Error("Query cannot be empty");
     }
     
-    return "I can help with that. Could you provide your state or constituency so I can give you localized election dates?";
+    try {
+      console.log(`[RAG] Searching knowledge base for: ${query}`);
+      const documents = await searchKnowledgeBase(query);
+      
+      if (!documents || documents.length === 0) {
+        return "I couldn't find specific information on that. Please check eci.gov.in.";
+      }
+      
+      return await generateWithLLM(query, documents, userContext);
+    } catch (error) {
+      console.error('[RAG] Pipeline failed:', error);
+      return "I'm experiencing delays accessing the knowledge base. Please try again.";
+    }
   }
 }

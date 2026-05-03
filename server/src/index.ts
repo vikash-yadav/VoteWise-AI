@@ -20,14 +20,10 @@ app.use(express.json({ limit: '10kb' })); // Body limit to prevent DoS
 // 2. Routes
 app.use('/api/v1', v1Routes);
 
+import { errorHandler } from './middleware/errorHandler';
+
 // 3. Global Error Handler
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(`[Error] ${err.stack}`);
-  res.status(500).json({
-    success: false,
-    error: process.env.NODE_ENV === 'production' ? 'Internal Server Error' : err.message
-  });
-});
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`🚀 VoteWise AI Server running on port ${port}`);
